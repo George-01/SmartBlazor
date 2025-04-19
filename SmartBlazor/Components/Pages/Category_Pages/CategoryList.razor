@@ -1,4 +1,6 @@
 ﻿@page "/category"
+@inject ICategoryRepository _categoryRepository
+
 
 @if (IsProcessing)
 {
@@ -24,23 +26,55 @@ else
                 </div>
             </div>
         </div>
-        <p>Category List</p>
+        @if (Categories.Any())
+        {
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Categories)
+                    {
+                        <tr>
+                            <td>@category.Name</td>
+                            <td><button class="btn btn-primary">Edit</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
 }
 
 @code {
-    public bool IsProcessing { get; set; } = false;
+    // private bool IsProcessing { get; set; } = false;
+    private bool IsProcessing { get; set; } = true;
+    private IEnumerable<Category> Categories { get; set; } = new List<Category>();
 
-    protected override async Task OnInitializedAsync()
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     IsProcessing = true;
+    //     await LoadCategories();
+    //     IsProcessing = false;
+    // }
+
+    protected override async Task OnAfterRenderAsync(bool firsRender)
     {
-        IsProcessing = true;
-        await Task.Delay(2000);
-        LoadCategories();
-        IsProcessing = false;
+        if (firsRender)
+        {
+            await LoadCategories();
+            IsProcessing = false;
+            StateHasChanged();
+        }
     }
 
-    private void LoadCategories()
+    private async Task LoadCategories()
     {
         //Load Categories
+        Categories = await _categoryRepository.GetCategories();
     }
 }

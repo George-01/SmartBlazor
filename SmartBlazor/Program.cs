@@ -4,12 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using SmartBlazor.Components;
 using SmartBlazor.Components.Account;
 using SmartBlazor.Data;
+using SmartBlazor.Repository;
+using SmartBlazor.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();

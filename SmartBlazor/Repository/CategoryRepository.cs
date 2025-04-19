@@ -1,4 +1,5 @@
-﻿using SmartBlazor.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SmartBlazor.Data;
 using SmartBlazor.Repository.IRepository;
 
 namespace SmartBlazor.Repository
@@ -12,26 +13,31 @@ namespace SmartBlazor.Repository
             _db = db;
         }
 
-        public IEnumerable<Category> GetCategories()
+        public async Task<IEnumerable<Category>> GetCategories()
         {
-            return _db.Category.ToList();
+            return await _db.Category.ToListAsync();
         }
 
-        public Category GetCategory(int id)
+        public async Task<Category> GetCategory(int id)
         {
-            return _db.Category.FirstOrDefault(c => c.Id == id)!;
-        }
-
-        public Category CreateCategory(Category obj)
-        {
-            _db.Category.Add(obj);
-            _db.SaveChanges();
+            var obj = await _db.Category.FirstOrDefaultAsync(c => c.Id == id);
+            if(obj == null)
+            {
+                return new Category();
+            }
             return obj;
         }
 
-        public Category UpdateCategory(Category obj)
+        public async Task<Category> CreateCategory(Category obj)
         {
-            var objectToUpdate = _db.Category.FirstOrDefault(c =>c.Id == obj.Id);
+             _db.Category.Add(obj);
+            await _db.SaveChangesAsync();
+            return obj;
+        }
+
+        public async Task<Category> UpdateCategory(Category obj)
+        {
+            var objectToUpdate = await _db.Category.FirstOrDefaultAsync(c => c.Id == obj.Id);
             if (objectToUpdate == null)
             {
                 return obj;
@@ -39,20 +45,20 @@ namespace SmartBlazor.Repository
 
             objectToUpdate.Name = obj.Name;
             _db.Category.Update(objectToUpdate);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return objectToUpdate;
 
         }
 
-        public bool DeleteCategory(int id)
+        public async Task<bool> DeleteCategory(int id)
         {
-            var existingCategory = _db.Category.FirstOrDefault(c => c.Id == id);
+            var existingCategory = await _db.Category.FirstOrDefaultAsync(c => c.Id == id);
             if (existingCategory == null)
             {
                 return false;
             }
             _db.Category.Remove(existingCategory);
-            return _db.SaveChanges() > 0;
+            return await _db.SaveChangesAsync() > 0;
         }
     }
 }
